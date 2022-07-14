@@ -4,6 +4,10 @@ from lxml import etree
 
 if __name__ == '__main__':
     # todo login
+    print('欢迎使用高校考试网 www.gaoxiaokaoshi.com 自动刷课脚本')
+    print('此脚本不参与任何交易，如果侵权的话，请联系我删库跑路。')
+    print('项目地址https://github.com/AlwaysLazy21/GXKSscript')
+    print('如果你感觉此脚本对你有帮助的话，可以给我一个★star')
     username = input('请输入你的账号：')
     password = input('请输入账号密码：')
     session = requests.session()
@@ -27,10 +31,11 @@ if __name__ == '__main__':
 
 
     class mess:
-        def __init__(self, course, isFinished, courseId):
+        def __init__(self, course, isFinished, courseId, lookTime):
             self.course = course
             self.isFinished = isFinished
             self.courseId = courseId
+            self.lookTime = lookTime
 
         def setIsFinished(self, isFinished):
             self.isFinished = isFinished
@@ -38,12 +43,14 @@ if __name__ == '__main__':
         def setCourseId(self, courseId):
             self.courseId = courseId
 
+        def setLookTime(self, lookTime):
+            self.lookTime = lookTime
+
         def show(self):
-            print(self.course, self.isFinished, '课程ID:' + self.courseId)
+            print(self.course, self.isFinished, '课程ID:', self.courseId, ' 已观看 ', self.lookTime, '分钟')
 
 
     course_list = []
-
     # todo 获取课程
     for page in range(3):
         print('.', end=' ')
@@ -66,14 +73,18 @@ if __name__ == '__main__':
         et = etree.HTML(mainResp.text)
         # print(mainResp.text)
         # 课程名称
+
         course = et.xpath('//td[@class="pleft30"]/text()')
         # 是否完成
         isFinished = et.xpath('//td/span/text()')
         # 课程id
         courseId = et.xpath('//tr/td[6]/a/@onclick')
+        # 观看时长
+        lookTime = et.xpath('//tr//td[4]/text()')
+
         for i in course:
             if i == '课程名称': continue
-            temp = mess(i, '不知道', '000')
+            temp = mess(i, '不知道', '000', '-1')
             course_list.append(temp)
         index = 0
         for i in isFinished:
@@ -83,12 +94,23 @@ if __name__ == '__main__':
         for i in courseId:
             course_list.__getitem__(index + page * 9).setCourseId(i.split(',')[-1][0:-1])
             index += 1
+        index = 0
+        for i in lookTime:
+            if i == '已完成学时': continue
+            course_list.__getitem__(index + page * 9).setLookTime(i[0:-2])
+            index += 1
+            # print(i)
+
         del index
     print()
+    # for i in course_list:
+    #     i.show()
     # todo 获取frame表单信息
     frameDemoUrl = "http://www.gaoxiaokaoshi.com/Study/LibraryStudy.aspx?tmp=1&Id={}&PlanId=11"
     for i in course_list:
         i.show()
+        # print(i.lookTime)
+        lookTime = int(i.lookTime)
         if i.isFinished == '已完成': continue
         frameUrl = f"http://www.gaoxiaokaoshi.com/Study/LibraryStudy.aspx?tmp=1&Id={i.courseId}&PlanId=11"
         # print(frameUrl)
@@ -120,9 +142,10 @@ if __name__ == '__main__':
             'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/103.0.0.0 Safari/537.36'
         }
         # print(frameUrl)
-        print('正在学习中，需要', Mins, '分钟，每60秒报备下信息')
+        print('正在学习中，需要', int(Mins) - lookTime, '分钟，每60秒报备下信息')
         for i in range(int(Mins)):
             index = i + 1
+            time.sleep(60)
             print('现已累计观看', index, '分钟,进度会自己保存。可随时退出本程序')
             param_from = {
                 'Id': id,
@@ -133,7 +156,6 @@ if __name__ == '__main__':
                 'StydyTime': 0,
                 'SessionId': SessionID
             }
-            time.sleep(60)
             domainResp = session.get(domainURl, headers=head, params=param_from)
             # print(domainResp.url)
             # print(domainResp.status_code)
