@@ -52,7 +52,7 @@ if __name__ == '__main__':
 
     course_list = []
     # todo 获取课程
-    for page in range(3):
+    for page in range(100):
         print('.', end=' ')
         data_course = {
             '__VIEWSTATE': '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',
@@ -65,7 +65,7 @@ if __name__ == '__main__':
         # print(mainResp.content.decode())
         # print(mainResp.status_code)
         if mainResp.status_code != 200:
-            print("Get failed", page)
+            break
         mainResp.close()
         # print(mainResp.content.decode())
         time.sleep(1)
@@ -143,7 +143,7 @@ if __name__ == '__main__':
         }
         # print(frameUrl)
         print('正在学习中，需要', int(Mins) - lookTime, '分钟，每60秒报备下信息')
-        for i in range(int(Mins)):
+        for i in range(int(Mins)-lookTime):
             index = i + 1
             time.sleep(60)
             print('现已累计观看', index, '分钟,进度会自己保存。可随时退出本程序')
@@ -159,6 +159,8 @@ if __name__ == '__main__':
             domainResp = session.get(domainURl, headers=head, params=param_from)
             # print(domainResp.url)
             # print(domainResp.status_code)
+    print('一分钟后自动退出，也可现在手动退出')
+    time.sleep(60)
 
         # print(frameResp.text)
         # break
